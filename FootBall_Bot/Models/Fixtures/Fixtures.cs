@@ -1,4 +1,4 @@
-﻿namespace FootBall_Bot.Model.Fixtures
+﻿namespace FootBall_Bot.Models.Fixtures
 {
     public class Fixtures
     {

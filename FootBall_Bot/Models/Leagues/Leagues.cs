@@ -1,4 +1,4 @@
-﻿namespace FootBall_Bot.Model.Leagues
+﻿namespace FootBall_Bot.Models.Leagues
 {
     public class Leagues
     {
