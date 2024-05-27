@@ -97,7 +97,7 @@ namespace FootBall_Bot.Clients
             var content = ExecuteRequest($"https://v3.football.api-sports.io/teams?name={teamName}");
             Models.Teams.Teams result = JsonConvert.DeserializeObject<Models.Teams.Teams>(content);
             return result;
-        }
+        }   //used
         public Models.Teams.Teams GetTeam(string code, int league, int season)
         {
             var content = ExecuteRequest($"https://v3.football.api-sports.io/teams?code={code}&league={league}&season={season}");
@@ -113,7 +113,7 @@ namespace FootBall_Bot.Clients
             request.AddHeader("x-rapidapi-host", Constants.Host);
             var content = client.Execute(request).Content;
             return content;
-        }
+        }   //used
         private string FormatToURL(string name)
         {
             string[] nameParts = name.Split(" ");
@@ -132,7 +132,7 @@ namespace FootBall_Bot.Clients
             }
 
             return name;
-        }
+        }   //used
 
     }
 }

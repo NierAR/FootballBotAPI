@@ -1,5 +1,4 @@
-﻿using FootBall_Bot.Models.Leagues;
-using Telegram.Bot;
+﻿using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -8,16 +7,16 @@ namespace FootBall_Bot.Controllers
 {
     public class BotController
     {
-        private TelegramBotClient BotClient = new TelegramBotClient(Constants.Token);
-        private CancellationToken CancellationToken = new CancellationToken();
-        private ReceiverOptions ReceiverOptions = new ReceiverOptions { AllowedUpdates = { } };
-
+        private readonly TelegramBotClient _botClient = new TelegramBotClient(Constants.Token);
+        private readonly CancellationToken _cancellationToken = new CancellationToken();
+        private readonly ReceiverOptions _receiverOptions = new ReceiverOptions { AllowedUpdates = { } };
+        private readonly APIController _apiController = new APIController();
 
         public async Task Start()
         {
-            BotClient.StartReceiving(HandlerUpdateAsync, HandlerErrorAsync, ReceiverOptions, CancellationToken);
-            var botMe = await BotClient.GetMeAsync();
-            Console.WriteLine($"Bot {botMe.Username} started.");
+            _botClient.StartReceiving(HandlerUpdateAsync, HandlerErrorAsync, _receiverOptions, _cancellationToken);
+            var botMe = await _botClient.GetMeAsync();
+            
         }
 
         private Task HandlerErrorAsync(ITelegramBotClient client, Exception exception, CancellationToken cancellationToken)
@@ -35,7 +34,7 @@ namespace FootBall_Bot.Controllers
         {
             if (update.Type == UpdateType.Message && update?.Message?.Text != null)
             {
-                await HandlerMessageAsync(BotClient, update.Message);
+                await HandlerMessageAsync(_botClient, update.Message);
             }
         }
 
@@ -43,13 +42,13 @@ namespace FootBall_Bot.Controllers
         {
             if (message.Text == "/start")
             {
-                await BotClient.SendTextMessageAsync(message.Chat.Id, "Оберіть команду");
+                await _botClient.SendTextMessageAsync(message.Chat.Id, "Оберіть команду");
                 return;
             }
 
             else if (message.Text == "/help")
             {
-                await BotClient.SendTextMessageAsync(message.Chat.Id,
+                await _botClient.SendTextMessageAsync(message.Chat.Id,
                     "/checklive - пошук матчів в лайві " +
                     "\n/checkteaminseason - пошук матчів команди в сезоні " +
                     "\n/checkdate - пошук матчів за датою");
@@ -57,7 +56,7 @@ namespace FootBall_Bot.Controllers
 
             else if (message.Text == "/checklive")
             {
-                await BotClient.SendTextMessageAsync(message.Chat.Id, APIController.GetFixtures());
+                await _botClient.SendTextMessageAsync(message.Chat.Id, _apiController.GetFixtures());
                 return;
             }
 
@@ -69,35 +68,47 @@ namespace FootBall_Bot.Controllers
 
             else if (message.Text.StartsWith("/checkdate"))
             {
-                await CheckDate(message);
+                await CheckDate(message, false);
+                return;
+            }
+
+            else if (message.Text.StartsWith("/checktoday"))
+            {
+                await CheckDate(message, true);
                 return;
             }
 
             else
             {
-                await BotClient.SendTextMessageAsync(message.Chat.Id, "Невідома команда. Будь ласка використайте команду /help для ознайомлення зі списком доступних команд.");
+                await _botClient.SendTextMessageAsync(message.Chat.Id, "Невідома команда. Будь ласка використайте команду /help для ознайомлення зі списком доступних команд.");
                 return;
             }
         }
 
-        private async Task CheckDate(Message message)
+        private async Task CheckDate(Message message, bool IsToday)
         {
             try
             {
+                if(IsToday == true)
+                {
+                    DateTime DateTime = DateTime.Now;
+                    await _botClient.SendTextMessageAsync(message.Chat.Id, _apiController.GetFixtures(DateTime.ToString("yyyy-MM-dd"), IsToday));
+                    return;
+                }
                 string[] answer = message.Text.Split(" ");
                 if(answer.Length < 2)
                 {
-                    await BotClient.SendTextMessageAsync(message.Chat.Id, "Будь ласка вкажіть корректну дату в форматі рррр-мм-дд");
+                    await _botClient.SendTextMessageAsync(message.Chat.Id, "Будь ласка вкажіть корректну дату в форматі рррр-мм-дд");
                     return;
                 }
 
-                await BotClient.SendTextMessageAsync(message.Chat.Id, APIController.GetFixtures(answer[1]));
+                await _botClient.SendTextMessageAsync(message.Chat.Id, _apiController.GetFixtures(answer[1], IsToday));
                 return;
 
             }
             catch (Exception ex)
             {
-                await BotClient.SendTextMessageAsync(message.Chat.Id, "Виникла помилка. Перевірте вказані дані.");
+                await _botClient.SendTextMessageAsync(message.Chat.Id, "Виникла помилка. Перевірте вказані дані.");
                 return;
             }
         }
@@ -107,28 +118,36 @@ namespace FootBall_Bot.Controllers
             try
             {
                 string[] answer = message.Text.Split(" ");
+                string teamName = "";
+                for(int i = 1; i < answer.Length - 1; i++)
+                {
+                    
+                    teamName += answer[i];
+                    if (i != answer.Length - 1) teamName += " ";
+                }
+
                 ushort season = 0;
                 if (answer.Length < 3)
                 {
-                    await BotClient.SendTextMessageAsync(message.Chat.Id, "Будь ласка вкажіть повну назву команди (наприклад Manchester City) і сезон, як 4-значне число (наприклад 2023)");
+                    await _botClient.SendTextMessageAsync(message.Chat.Id, "Будь ласка вкажіть повну назву команди (наприклад Manchester City) і сезон, як 4-значне число (наприклад 2023)");
                     return;
                 }
 
                 try
                 {
-                    season = Convert.ToUInt16(answer[2]);
+                    season = Convert.ToUInt16(answer[answer.Length-1]);
                 }
                 catch (Exception ex)
                 {
-                    await BotClient.SendTextMessageAsync(message.Chat.Id, "Вкажіть сезон, як 4-значне число (наприклад 2023)");
+                    await _botClient.SendTextMessageAsync(message.Chat.Id, "Вкажіть сезон, як 4-значне число (наприклад 2023)");
                     return;
                 }
-                await BotClient.SendTextMessageAsync(message.Chat.Id, APIController.GetFixtures(answer[1], season));
+                await _botClient.SendTextMessageAsync(message.Chat.Id, _apiController.GetFixtures(teamName, season));
                 return;
             }
             catch (Exception ex)
             {
-                await BotClient.SendTextMessageAsync(message.Chat.Id, "Виникла помилка. Перевірте вказані дані.");
+                await _botClient.SendTextMessageAsync(message.Chat.Id, "Виникла помилка. Перевірте вказані дані.");
                 return;
             }
         }
