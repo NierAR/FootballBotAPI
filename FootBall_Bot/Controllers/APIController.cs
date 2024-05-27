@@ -14,56 +14,48 @@ namespace FootBall_Bot.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public List<string[]> GetFixturesAll()
+        [HttpGet("~/GetFixturesAll")]
+        public static string GetFixtures()
         {
             APIClient client = new APIClient();
-            return ParseResponse(client.GetFixtures());
+            return ParseResponse(client.GetFixtures(), false);
         }
 
         [HttpGet("~/GetFixturesByDate")]
-        public List<string[]> GetFixtures(string date)
+        public static string GetFixtures(string date)
         {
             APIClient client = new APIClient();
-            return ParseResponse(client.GetFixtures(date));
+            return ParseResponse(client.GetFixtures(date), true);
         }
 
-        [HttpGet("~/GetFixturesByTeamInDate")]
-        public List<string[]> GetFixtures(string teamName, string date)
+        [HttpGet("~/GetFixturesByTeamInSeason")]
+        public static string GetFixtures(string teamName, ushort season)
         {
             APIClient client = new APIClient();
-            return ParseResponse(client.GetFixtures(client.GetTeam(teamName).Response[0].Team.ID, date));
+            return ParseResponse(client.GetFixtures(client.GetTeam(teamName).Response[0].Team.ID, season: season), false);
         }
-
-        /*[HttpGet("~/GetFixturesByLeagueInSeason")]
-        public List<string[]> GetFixtures(int league, int season)
+        
+        private static string ParseResponse(Models.Fixtures.Fixtures content, bool HasToBePlayed)
         {
-            APIClient client = new APIClient();
-            return ParseResponse(client.GetFixtures(league, season));
-        }*/
-        private static List<string[]> ParseResponse(Models.Fixtures.Fixtures content)
-        {
-            List<string[]> fixtures = new List<string[]>();
+            int counter = content.Response.Length > 15 ? 15 : content.Response.Length;
+            string answer = "";
 
-            foreach (Models.Fixtures.Response response in content.Response)
+
+            for (int i = 0; i < counter; i++)
             {
+                if (HasToBePlayed & content.Response[i].Fixture.Status.Long != "Not Started")
+                {
+                    continue;
+                }
 
-                string[] fixture = {
-                    response.Teams.Home.Name,
-                    response.Teams.Away.Name,
-                    response.Goals.Home + " : " + response.Goals.Away,
-                    response.Fixture.Status.Long
-                };
-
-                fixtures.Add(fixture);
+                answer += content.Response[i].Teams.Home.Name + "-----" +
+                    content.Response[i].Teams.Away.Name + "\n" +
+                    content.Response[i].Goals.Home + "\t" + " : " + "\t" +
+                    content.Response[i].Goals.Away + "\n" +
+                    content.Response[i].Fixture.Status.Long + "\n" + "----------------------------" + "\n";
             }
-            return fixtures;
+            return answer;
         }
 
-        [HttpPost("~/AddFavouriteTeam")]
-        public static void SaveFavouriteTeam()
-        {
-            string DB;
-        }
     }
 }

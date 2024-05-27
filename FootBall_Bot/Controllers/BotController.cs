@@ -1,9 +1,9 @@
-﻿using Telegram.Bot;
+﻿using FootBall_Bot.Models.Leagues;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 namespace FootBall_Bot.Controllers
 {
     public class BotController
@@ -11,6 +11,7 @@ namespace FootBall_Bot.Controllers
         private TelegramBotClient BotClient = new TelegramBotClient(Constants.Token);
         private CancellationToken CancellationToken = new CancellationToken();
         private ReceiverOptions ReceiverOptions = new ReceiverOptions { AllowedUpdates = { } };
+
 
         public async Task Start()
         {
@@ -42,20 +43,95 @@ namespace FootBall_Bot.Controllers
         {
             if (message.Text == "/start")
             {
-
-                ReplyKeyboardMarkup replyKeyboardMarkup = new
-                    (
-                        new[]
-                        {
-                            new KeyboardButton[] { "/lookforlive", "Check matches by date" }
-                        }
-                    )
-                { ResizeKeyboard = true };
-
-                await BotClient.SendTextMessageAsync(message.Chat.Id, "Оберіть команду", replyMarkup: replyKeyboardMarkup);
+                await BotClient.SendTextMessageAsync(message.Chat.Id, "Оберіть команду");
                 return;
             }
 
+            else if (message.Text == "/help")
+            {
+                await BotClient.SendTextMessageAsync(message.Chat.Id,
+                    "/checklive - пошук матчів в лайві " +
+                    "\n/checkteaminseason - пошук матчів команди в сезоні " +
+                    "\n/checkdate - пошук матчів за датою");
+            }
+
+            else if (message.Text == "/checklive")
+            {
+                await BotClient.SendTextMessageAsync(message.Chat.Id, APIController.GetFixtures());
+                return;
+            }
+
+            else if (message.Text.StartsWith("/checkteaminseason"))
+            {
+                await CheckTeamInCeason(message);
+                return;
+            }
+
+            else if (message.Text.StartsWith("/checkdate"))
+            {
+                await CheckDate(message);
+                return;
+            }
+
+            else
+            {
+                await BotClient.SendTextMessageAsync(message.Chat.Id, "Невідома команда. Будь ласка використайте команду /help для ознайомлення зі списком доступних команд.");
+                return;
+            }
         }
+
+        private async Task CheckDate(Message message)
+        {
+            try
+            {
+                string[] answer = message.Text.Split(" ");
+                if(answer.Length < 2)
+                {
+                    await BotClient.SendTextMessageAsync(message.Chat.Id, "Будь ласка вкажіть корректну дату в форматі рррр-мм-дд");
+                    return;
+                }
+
+                await BotClient.SendTextMessageAsync(message.Chat.Id, APIController.GetFixtures(answer[1]));
+                return;
+
+            }
+            catch (Exception ex)
+            {
+                await BotClient.SendTextMessageAsync(message.Chat.Id, "Виникла помилка. Перевірте вказані дані.");
+                return;
+            }
+        }
+
+        private async Task CheckTeamInCeason(Message message)
+        {
+            try
+            {
+                string[] answer = message.Text.Split(" ");
+                ushort season = 0;
+                if (answer.Length < 3)
+                {
+                    await BotClient.SendTextMessageAsync(message.Chat.Id, "Будь ласка вкажіть повну назву команди (наприклад Manchester City) і сезон, як 4-значне число (наприклад 2023)");
+                    return;
+                }
+
+                try
+                {
+                    season = Convert.ToUInt16(answer[2]);
+                }
+                catch (Exception ex)
+                {
+                    await BotClient.SendTextMessageAsync(message.Chat.Id, "Вкажіть сезон, як 4-значне число (наприклад 2023)");
+                    return;
+                }
+                await BotClient.SendTextMessageAsync(message.Chat.Id, APIController.GetFixtures(answer[1], season));
+                return;
+            }
+            catch (Exception ex)
+            {
+                await BotClient.SendTextMessageAsync(message.Chat.Id, "Виникла помилка. Перевірте вказані дані.");
+                return;
+            }
+        }
+
     }
 }
