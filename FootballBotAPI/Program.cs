@@ -1,4 +1,4 @@
-namespace FootBall_Bot
+namespace FootballBotAPI
 {
     class Program
     {

@@ -1,4 +1,4 @@
-﻿namespace FootBall_Bot.Models.Teams
+﻿namespace FootballBotAPI.Models.Teams
 {
     public class Teams
     {

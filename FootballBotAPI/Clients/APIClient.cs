@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using RestSharp;
 
-namespace FootBall_Bot.Clients
+namespace FootballBotAPI.Clients
 {
     public class APIClient
     {

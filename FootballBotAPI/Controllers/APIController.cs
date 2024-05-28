@@ -1,8 +1,8 @@
-using FootBall_Bot.Clients;
-using FootBall_Bot.Models.Fixtures;
+using FootballBotAPI.Clients;
+using FootballBotAPI.Models.Fixtures;
 using Microsoft.AspNetCore.Mvc;
 
-namespace FootBall_Bot.Controllers
+namespace FootballBotAPI.Controllers
 {
 
     [Route("[controller]")]
