@@ -1,5 +1,3 @@
-using FootBall_Bot.Controllers;
-
 namespace FootBall_Bot
 {
     class Program
@@ -17,8 +15,6 @@ namespace FootBall_Bot
 
             var app = builder.Build();
 
-            BotController Bot = new BotController();
-            Bot.Start();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
