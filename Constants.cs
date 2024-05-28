@@ -1,0 +1,6 @@
+﻿
+namespace 
+internal class Constants
+{
+	
+}

@@ -1,6 +1,6 @@
 @FootBall_Bot_HostAddress = http://localhost:5296
 
-GET {{FootBall_Bot_HostAddress}}/FootBall_Bot/
+GET {{FootBall_Bot_HostAddress}}/FootballBotAPI/
 Accept: application/json
 
 ###
