@@ -13,7 +13,7 @@ namespace FootballBotAPI.Controllers
         {
             _logger = logger;
         }
-        [HttpGet("~/GetFixturesAll")]
+        [HttpGet("/APIController/GetFixturesAll")]
         public string GetFixtures()
         {
             try
@@ -28,7 +28,7 @@ namespace FootballBotAPI.Controllers
             }
         }
 
-        [HttpGet("~/GetFixturesByDate")]
+        [HttpGet("/APIController/GetFixturesByDate")]
         public string GetFixtures(string date, bool IsToday)
         {
             try
@@ -43,7 +43,7 @@ namespace FootballBotAPI.Controllers
             }
         }
 
-        [HttpGet("~/GetFixturesByTeamInSeason")]
+        [HttpGet("/APIController/GetFixturesByTeamInSeason")]
         public string GetFixtures(string teamName, ushort season)
         {
             try
@@ -57,45 +57,6 @@ namespace FootballBotAPI.Controllers
                 return "Схоже сталася помилка. Перевірте вказані дані";
             }
         }
-
-        [HttpGet("~/GetFavouriteTeam")]
-        public string GetFavouriteTeam(long userId)
-        {
-            Database db = new Database();
-            var answer = db.GetFavouriteTeamAsync(userId).Result;
-            if (string.IsNullOrEmpty(answer))
-            {
-                return "На жаль ви не вказували улюблену команду";
-            }
-            return answer;
-        }
-
-
-
-        [HttpPost("~/SaveFavouriteTeam")]
-        public void SaveTeam(long userId, string teamName)
-        {
-            Database db = new Database();
-
-            db.InsertFavouriteTeamAsync(userId, teamName);
-            return;
-        }
-
-        [HttpPut("~/ChangeFavouriteTeam")]
-        public void UpdateTeam(long userId, string teamName)
-        {
-            Database db = new Database();
-
-            db.ChangeFavouriteTeamAsync(userId, teamName);
-        }
-
-        [HttpDelete("~/DeleteFavouriteTeam")]
-        public void DeleteTeam(long userId) 
-        { 
-            Database db = new Database();
-            db.DeleteFavouriteTeamAsync(userId);
-        }
-
 
 
 

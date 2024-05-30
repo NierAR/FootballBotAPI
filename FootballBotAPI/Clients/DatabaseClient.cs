@@ -1,12 +1,11 @@
 ﻿using Npgsql;
-using System.Data.Common;
 
-namespace FootballBotAPI
+namespace FootballBotAPI.Clients
 {
-    public class Database
+    public class DatabaseClient
     {
         NpgsqlConnection connection; 
-        public Database() 
+        public DatabaseClient() 
         { 
             connection = new NpgsqlConnection(Constants.Connection);
         }
@@ -15,7 +14,7 @@ namespace FootballBotAPI
         public async Task InsertFavouriteTeamAsync(long userId, string teamName)
         {
             var answer = await GetFavouriteTeamAsync(userId);
-            if (string.IsNullOrEmpty(answer))
+            if (answer == null)
             {
                 var sql = $"INSERT INTO public.\"FavouriteTeams\" (\"UserId\", \"TeamName\") VALUES (@UserId, @TeamName)";
 
@@ -43,10 +42,11 @@ namespace FootballBotAPI
 
         public async Task DeleteFavouriteTeamAsync(long userId)
         {
-            var sql = $"DELETE * FROM public.\"FavouriteTeams\" WHERE \"UserId\" = @UserId";
+            var sql = $"UPDATE public.\"FavouriteTeams\" SET \"TeamName\" = @TeamName WHERE \"UserId\" = @UserId";
 
             await using (var command = new NpgsqlCommand(sql, connection))
             {
+                command.Parameters.AddWithValue("TeamName", "");
                 command.Parameters.AddWithValue("UserId", userId);
 
                 await connection.OpenAsync();
