@@ -42,11 +42,10 @@ namespace FootballBotAPI.Clients
 
         public async Task DeleteFavouriteTeamAsync(long userId)
         {
-            var sql = $"UPDATE public.\"FavouriteTeams\" SET \"TeamName\" = @TeamName WHERE \"UserId\" = @UserId";
+            var sql = $"delete from public.\"FavouriteTeams\" where \"UserId\" = @UserId";
 
             await using (var command = new NpgsqlCommand(sql, connection))
             {
-                command.Parameters.AddWithValue("TeamName", "");
                 command.Parameters.AddWithValue("UserId", userId);
 
                 await connection.OpenAsync();
