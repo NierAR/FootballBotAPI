@@ -86,7 +86,7 @@ namespace FootballBotAPI.Clients
                     if(await reader.ReadAsync())
                     {
                         string answer = reader.GetString(0);
-                        connection.CloseAsync();
+                        await connection.CloseAsync();
                         return answer;
                     }
                 }

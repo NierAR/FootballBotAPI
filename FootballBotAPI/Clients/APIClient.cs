@@ -11,69 +11,69 @@ namespace FootballBotAPI.Clients
         {
             client = new RestClient();
         }
-        public Models.Leagues.Leagues GetLeagues()
+        public async Task<Models.Leagues.Leagues> GetLeagues()
         {
-            string content = ExecuteRequest("https://v3.football.api-sports.io/leagues");
+            string content = await ExecuteRequest("https://v3.football.api-sports.io/leagues");
             Models.Leagues.Leagues result = JsonConvert.DeserializeObject<Models.Leagues.Leagues>(content);
             return result;
         }
 
-        public Models.Leagues.Leagues GetLeagues(string name)
+        public async Task<Models.Leagues.Leagues> GetLeagues(string name)
         {
-            name = FormatToURL(name);
+            name = await FormatToURL(name);
             
-            var content = ExecuteRequest($"https://v3.football.api-sports.io/leagues?name={name}");
+            var content = await ExecuteRequest($"https://v3.football.api-sports.io/leagues?name={name}");
             Models.Leagues.Leagues result = JsonConvert.DeserializeObject<Models.Leagues.Leagues>(content);
             return result;
         }
 
 
 
-        public Models.Fixtures.Fixtures GetFixtures()
+        public async Task<Models.Fixtures.Fixtures> GetFixtures()
         {
             
-            var content = ExecuteRequest("https://v3.football.api-sports.io/fixtures?live=all");
+            var content = await ExecuteRequest("https://v3.football.api-sports.io/fixtures?live=all");
             Models.Fixtures.Fixtures result = JsonConvert.DeserializeObject<Models.Fixtures.Fixtures>(content);
             return result;
         }   //used
 
-        public Models.Fixtures.Fixtures GetFixtures(string date)
+        public async Task<Models.Fixtures.Fixtures> GetFixtures(string date)
         {
             
-            var content = ExecuteRequest($"https://v3.football.api-sports.io/fixtures?date={date}");
+            var content = await ExecuteRequest($"https://v3.football.api-sports.io/fixtures?date={date}");
             Models.Fixtures.Fixtures result = JsonConvert.DeserializeObject<Models.Fixtures.Fixtures>(content);
             return result;
         }   //used
 
-        public Models.Fixtures.Fixtures GetFixtures(int league, int season)
+        public async Task<Models.Fixtures.Fixtures> GetFixtures(int league, int season)
         {
             
-            var content = ExecuteRequest($"https://v3.football.api-sports.io/fixtures?league={league}&season={season}");
+            var content = await ExecuteRequest($"https://v3.football.api-sports.io/fixtures?league={league}&season={season}");
             Models.Fixtures.Fixtures result = JsonConvert.DeserializeObject<Models.Fixtures.Fixtures>(content);
             return result;
         }
 
-        public Models.Fixtures.Fixtures GetFixtures(int teamID, ushort season)
+        public async Task<Models.Fixtures.Fixtures> GetFixtures(int teamID, ushort season)
         {
 
-            var content = ExecuteRequest($"https://v3.football.api-sports.io/fixtures?season={season}&team={teamID}");
+            var content = await ExecuteRequest($"https://v3.football.api-sports.io/fixtures?season={season}&team={teamID}");
             Models.Fixtures.Fixtures result = JsonConvert.DeserializeObject<Models.Fixtures.Fixtures>(content);
             return result;
         }   //used
 
-        public Models.Fixtures.Fixtures GetFixtures(int teamID, string date)
+        public async Task<Models.Fixtures.Fixtures> GetFixtures(int teamID, string date)
         {
             var season = int.Parse(date.Split("-")[0]) - 1;
             
-            var content = ExecuteRequest($"https://v3.football.api-sports.io/fixtures?season={season}&team={teamID}&date={date}");
+            var content = await ExecuteRequest($"https://v3.football.api-sports.io/fixtures?season={season}&team={teamID}&date={date}");
             Models.Fixtures.Fixtures result = JsonConvert.DeserializeObject<Models.Fixtures.Fixtures>(content);
             return result;
         }
 
-        public Models.Fixtures.Fixtures GetFixtures(int teamID, int season, int league)
+        public async Task<Models.Fixtures.Fixtures> GetFixtures(int teamID, int season, int league)
         {
             
-            var content = ExecuteRequest($"https://v3.football.api-sports.io/fixtures?league={league}&season={season}&team={teamID}");
+            var content = await ExecuteRequest($"https://v3.football.api-sports.io/fixtures?league={league}&season={season}&team={teamID}");
             Models.Fixtures.Fixtures result = JsonConvert.DeserializeObject<Models.Fixtures.Fixtures>(content);
             return result;
         }
@@ -82,31 +82,32 @@ namespace FootballBotAPI.Clients
 
         
 
-        public Models.Teams.Teams GetTeamByCode(string code)
+        public async Task<Models.Teams.Teams> GetTeamByCode(string code)
         {
            
-            var content = ExecuteRequest($"https://v3.football.api-sports.io/teams?code={code}");
+            var content = await ExecuteRequest($"https://v3.football.api-sports.io/teams?code={code}");
             Models.Teams.Teams result = JsonConvert.DeserializeObject<Models.Teams.Teams>(content);
             return result;
         }
 
-        public Models.Teams.Teams GetTeam(string teamName)
+        public async Task<Models.Teams.Teams> GetTeam(string teamName)
         {
-            teamName = FormatToURL(teamName);
+            teamName = await FormatToURL(teamName);
             
-            var content = ExecuteRequest($"https://v3.football.api-sports.io/teams?name={teamName}");
+            var content = await ExecuteRequest($"https://v3.football.api-sports.io/teams?name={teamName}");
             Models.Teams.Teams result = JsonConvert.DeserializeObject<Models.Teams.Teams>(content);
             return result;
         }   //used
-        public Models.Teams.Teams GetTeam(string code, int league, int season)
+
+        public async Task<Models.Teams.Teams> GetTeam(string code, int league, int season)
         {
-            var content = ExecuteRequest($"https://v3.football.api-sports.io/teams?code={code}&league={league}&season={season}");
+            var content = await ExecuteRequest($"https://v3.football.api-sports.io/teams?code={code}&league={league}&season={season}");
             Models.Teams.Teams result = JsonConvert.DeserializeObject<Models.Teams.Teams>(content);
             return result;
         }
 
 
-        private string ExecuteRequest(string url)
+        private async Task<string> ExecuteRequest(string url)
         {
             var request = new RestRequest($"{url}", Method.Get);
             request.AddHeader("x-rapidapi-key", Constants.ApiKey);
@@ -114,7 +115,7 @@ namespace FootballBotAPI.Clients
             var content = client.Execute(request).Content;
             return content;
         }   //used
-        private string FormatToURL(string name)
+        private async Task<string> FormatToURL(string name)
         {
             string[] nameParts = name.Split(" ");
             if (nameParts.Length > 1)

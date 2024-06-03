@@ -13,7 +13,7 @@ namespace FootballBotAPI.Controllers
         }
 
         [HttpGet("/DatabaseController/GetFavouriteTeam")]
-        public string GetFavouriteTeam(long userId)
+        public async Task<string> GetFavouriteTeam(long userId)
         {
             DatabaseClient db = new DatabaseClient();
             var answer = db.GetFavouriteTeamAsync(userId).Result;
@@ -25,7 +25,7 @@ namespace FootballBotAPI.Controllers
         }
 
         [HttpPost("/DatabaseController/SaveFavouriteTeam")]
-        public void SaveTeam(long userId, string teamName)
+        public async Task SaveTeam(long userId, string teamName)
         {
             DatabaseClient db = new DatabaseClient();
 
@@ -34,7 +34,7 @@ namespace FootballBotAPI.Controllers
         }
 
         [HttpPut("/DatabaseController/ChangeFavouriteTeam")]
-        public void UpdateTeam(long userId, string teamName)
+        public async Task UpdateTeam(long userId, string teamName)
         {
             DatabaseClient db = new DatabaseClient();
 
@@ -42,7 +42,7 @@ namespace FootballBotAPI.Controllers
         }
 
         [HttpDelete("/DatabaseController/DeleteFavouriteTeam")]
-        public void DeleteTeam(long userId)
+        public async Task DeleteTeam(long userId)
         {
             DatabaseClient db = new DatabaseClient();
             db.DeleteFavouriteTeamAsync(userId);

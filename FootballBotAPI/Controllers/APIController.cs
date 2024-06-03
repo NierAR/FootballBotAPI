@@ -14,12 +14,12 @@ namespace FootballBotAPI.Controllers
             _logger = logger;
         }
         [HttpGet("/APIController/GetFixturesAll")]
-        public string GetFixtures()
+        public async Task<string> GetFixtures()
         {
             try
             {
                 APIClient client = new APIClient();
-                return ParseResponse(client.GetFixtures(), false, true);
+                return await ParseResponse(await client.GetFixtures(), false, true);
             }
             catch (Exception ex)
             {
@@ -29,12 +29,12 @@ namespace FootballBotAPI.Controllers
         }
 
         [HttpGet("/APIController/GetFixturesByDate")]
-        public string GetFixtures(string date, bool IsToday)
+        public async Task<string> GetFixtures(string date, bool IsToday)
         {
             try
             {
                 APIClient client = new APIClient();
-                return ParseResponse(client.GetFixtures(date), IsToday, false);
+                return await ParseResponse(await client.GetFixtures(date), IsToday, false);
             }
             catch (Exception ex)
             {
@@ -44,12 +44,12 @@ namespace FootballBotAPI.Controllers
         }
 
         [HttpGet("/APIController/GetFixturesByTeamInSeason")]
-        public string GetFixtures(string teamName, ushort season)
+        public async Task<string> GetFixtures(string teamName, ushort season)
         {
             try
             {
                 APIClient client = new APIClient();
-                return ParseResponse(client.GetFixtures(client.GetTeam(teamName).Response[0].Team.ID, season: season), false, false);
+                return await ParseResponse(await client.GetFixtures((await client.GetTeam(teamName)).Response[0].Team.ID, season: season), false, false);
             }
             catch (Exception ex)
             {
@@ -60,14 +60,14 @@ namespace FootballBotAPI.Controllers
 
 
 
-        private string ParseResponse(Fixtures content, bool IsToday, bool IsLive)
+        private async Task<string> ParseResponse(Fixtures content, bool IsToday, bool IsLive)
         {
             int counter = content.Response.Length > 15 ? 15 : content.Response.Length;
             if (counter == 0) return "На жаль, немає інформації по вашому запиту на даний момент.";
-            return FormatAnswer(content, IsToday, IsLive, counter);
+            return await FormatAnswer(content, IsToday, IsLive, counter);
         }
         
-        private string FormatAnswer(Fixtures content, bool IsToday, bool IsLive, int counter)
+        private async Task<string> FormatAnswer(Fixtures content, bool IsToday, bool IsLive, int counter)
         {
             string answer = "";
             for (int i = 0; i < counter; i++)
